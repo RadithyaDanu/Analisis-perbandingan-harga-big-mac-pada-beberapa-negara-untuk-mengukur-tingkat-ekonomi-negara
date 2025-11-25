@@ -99,8 +99,7 @@ def decision_tree_analysis():
         return dt, df
         
     except FileNotFoundError:
-        print("Error: File 'real_bigmac_clustering_results.csv' tidak ditemukan!")
-        print("Pastikan sudah menjalankan script K-Means terlebih dahulu.")
+        print("Error: File 'real_bigmac_clustering_results.csv' tidak ditemukan")
         return None, None
         
     except Exception as e:
@@ -114,4 +113,5 @@ if __name__ == "__main__":
     if model is not None:
         print("\nDecision Tree analysis complete!")
     else:
+
         print("\nAnalysis failed.")
