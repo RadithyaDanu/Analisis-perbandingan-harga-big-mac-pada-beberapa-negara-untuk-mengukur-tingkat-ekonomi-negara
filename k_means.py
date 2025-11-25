@@ -9,7 +9,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def create_real_bigmac_dataset():
-    """Create Big Mac dataset based on actual data"""
     data = {
         'Country': [
             'United States', 'Argentina', 'Australia', 'Brazil', 'Britain',
@@ -36,8 +35,7 @@ def create_real_bigmac_dataset():
     return pd.DataFrame(data)
 
 def find_optimal_k(scaled_features, max_k=8):
-    """Find optimal number of clusters using elbow method and silhouette analysis"""
-    k_range = range(2, min(max_k + 1, len(scaled_features)))  # Pastikan k tidak melebihi jumlah data
+    k_range = range(2, min(max_k + 1, len(scaled_features)))
     inertias = []
     silhouette_scores = []
     
@@ -47,8 +45,7 @@ def find_optimal_k(scaled_features, max_k=8):
             labels = kmeans.fit_predict(scaled_features)
             inertias.append(kmeans.inertia_)
             
-            # Calculate silhouette score
-            if len(set(labels)) > 1:  # Pastikan ada lebih dari 1 cluster
+            if len(set(labels)) > 1:
                 sil_score = silhouette_score(scaled_features, labels)
                 silhouette_scores.append(sil_score)
             else:
@@ -61,44 +58,36 @@ def find_optimal_k(scaled_features, max_k=8):
     return k_range, inertias, silhouette_scores
 
 def enhanced_kmeans_analysis():
-    """Enhanced K-Means analysis with real data and error handling"""
     print("REAL BIG MAC INDEX K-MEANS CLUSTERING")
     print("=" * 50)
     
     try:
-        # 1. Load real data
         df = create_real_bigmac_dataset()
         print(f"Real dataset loaded: {len(df)} countries")
         
-        # Validasi data
         if df.isnull().any().any():
             print("Warning: Missing values detected. Cleaning data...")
             df = df.dropna()
         
-        # Display data preview
         print("\nData Preview:")
         print(df.head())
         print(f"\nPrice range: ${df['Dollar_Price'].min():.2f} - ${df['Dollar_Price'].max():.2f}")
         print(f"Valuation range: {df['Valuation_Percent'].min()}% to {df['Valuation_Percent'].max()}%")
         
-        # 2. Prepare features
         features = df[['Dollar_Price', 'Valuation_Percent']].copy()
         
-        # Check for any remaining issues
         if len(features) < 3:
             raise ValueError("Not enough data points for clustering")
         
         scaler = StandardScaler()
         scaled_features = scaler.fit_transform(features)
         
-        # 3. Find optimal k
         print("\nFinding optimal number of clusters...")
         k_range, inertias, silhouette_scores = find_optimal_k(scaled_features)
         
         if not inertias:
             raise ValueError("Could not compute clustering metrics")
-        
-        # Create plots with error handling
+
         try:
             plt.figure(figsize=(15, 5))
             
@@ -122,10 +111,8 @@ def enhanced_kmeans_analysis():
         except Exception as e:
             print(f"Warning: Could not create elbow/silhouette plots: {str(e)}")
         
-        # 4. Determine optimal k - Force 3 clusters for economic analysis
-        optimal_k = 3  # Fixed untuk analisis ekonomi: Maju, Berkembang, Emerging
+        optimal_k = 3
         
-        # Show silhouette scores for reference
         if silhouette_scores and len(k_range) >= 2:
             print(f"Silhouette scores for different k values:")
             for i, k in enumerate(k_range):
@@ -134,12 +121,10 @@ def enhanced_kmeans_analysis():
         
         print(f"Using k={optimal_k} for economic classification analysis")
         
-        # 5. Perform clustering with optimal k
         kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10, max_iter=300)
         clusters = kmeans.fit_predict(scaled_features)
         df['Cluster'] = clusters
-        
-        # 6. Enhanced visualization
+
         try:
             plt.subplot(1, 3, 3)
             colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
@@ -168,7 +153,6 @@ def enhanced_kmeans_analysis():
         except Exception as e:
             print(f"Warning: Could not create clustering plot: {str(e)}")
         
-        # 7. Detailed cluster analysis
         print(f"\nDETAILED CLUSTER ANALYSIS (k={optimal_k}):")
         print("=" * 60)
         
@@ -186,7 +170,6 @@ def enhanced_kmeans_analysis():
             print(f"   Average price: ${avg_price:.2f} (±${price_std:.2f})")
             print(f"   Average valuation: {avg_valuation:.1f}% (±{val_std:.1f}%)")
             
-            # Enhanced economic interpretation based on price and valuation
             if avg_price >= 4.5 and avg_valuation >= -25:
                 category = "DEVELOPED MARKETS (Advanced economies)"
                 strategy = "Premium pricing, quality focus, established infrastructure"
@@ -220,7 +203,6 @@ def enhanced_kmeans_analysis():
             top_countries = cluster_data.nlargest(min(3, len(cluster_data)), 'Dollar_Price')['Country'].tolist()
             print(f"   Top Countries: {', '.join(top_countries)}")
         
-        # 8. Performance metrics
         try:
             silhouette_avg = silhouette_score(scaled_features, clusters)
             print(f"\nCLUSTERING PERFORMANCE:")
@@ -229,11 +211,9 @@ def enhanced_kmeans_analysis():
             print(f"   Optimal K: {optimal_k}")
         except:
             print("\nCLUSTERING PERFORMANCE: Could not calculate some metrics")
-        
-        # 9. Enhanced Business insights with economic classification
+
         print(f"\nECONOMIC CLASSIFICATION INSIGHTS:")
         print("=" * 50)        
-        # Classify clusters by economic development
         cluster_classification = {}
         for i in range(optimal_k):
             cluster_data = df[df['Cluster'] == i]
@@ -378,7 +358,7 @@ def export_results(df, kmeans):
 if __name__ == "__main__":
     print("Starting Big Mac Index K-Means Analysis...")
     
-    # Run enhanced analysis
+    # enhanced analysis
     results_df, model = enhanced_kmeans_analysis()
     
     if results_df is not None and model is not None:
@@ -386,4 +366,5 @@ if __name__ == "__main__":
         print("\nEnhanced Big Mac Index analysis complete!")
         print("Check the generated plots and CSV files for detailed results.")
     else:
+
         print("\nAnalysis failed. Please check the error messages above.")
