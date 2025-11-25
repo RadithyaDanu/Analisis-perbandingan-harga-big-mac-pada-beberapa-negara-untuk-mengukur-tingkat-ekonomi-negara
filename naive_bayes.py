@@ -1,4 +1,3 @@
-# Naive Bayes Sederhana untuk Big Mac Index
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,43 +13,35 @@ class SimpleNaiveBayes:
         self.classes = []
         
     def fit(self, X, y):
-        """Latih model Naive Bayes"""
         self.classes = np.unique(y)
         n_samples = len(y)
         
         for class_val in self.classes:
-            # Hitung prior P(class)
             class_mask = y == class_val
             self.class_priors[class_val] = np.sum(class_mask) / n_samples
-            
-            # Hitung mean dan variance untuk setiap fitur
+
             self.feature_means[class_val] = X[class_mask].mean()
             self.feature_vars[class_val] = X[class_mask].var() + 1e-6
     
     def _gaussian_prob(self, x, mean, var):
-        """Hitung probabilitas Gaussian"""
         return (1 / np.sqrt(2 * np.pi * var)) * np.exp(-((x - mean) ** 2) / (2 * var))
     
     def predict(self, X):
-        """Prediksi kelas"""
         predictions = []
         
         for _, sample in X.iterrows():
             class_scores = {}
             
             for class_val in self.classes:
-                # Mulai dengan prior
                 score = self.class_priors[class_val]
-                
-                # Kalikan dengan likelihood setiap fitur
+
                 for feature in X.columns:
                     mean = self.feature_means[class_val][feature]
                     var = self.feature_vars[class_val][feature]
                     score *= self._gaussian_prob(sample[feature], mean, var)
                 
                 class_scores[class_val] = score
-            
-            # Pilih kelas dengan score tertinggi
+
             predicted_class = max(class_scores, key=class_scores.get)
             predictions.append(predicted_class)
         
@@ -68,29 +59,24 @@ def run_simple_analysis():
     except FileNotFoundError:
         print("File CSV tidak ditemukan!")
         return
-    
-    # Pilih fitur sederhana
+
     X = df[['Dollar_Price', 'Valuation_Percent']]
     y = df['Cluster']
-    
-    # Label cluster
+
     cluster_names = {0: 'Emerging', 1: 'Berkembang', 2: 'Maju'}
     
     print(f"\nDistribusi Kelas:")
     for cluster, count in y.value_counts().sort_index().items():
         print(f"   {cluster_names[cluster]}: {count} negara")
-    
-    # Split data
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42, stratify=y
     )
     
-    # Latih model
     print(f"\nMelatih model..")
     nb = SimpleNaiveBayes()
     nb.fit(X_train, y_train)
-    
-    # Tampilkan parameter yang dipelajari
+
     print(f"\nPARAMETER MODEL:")
     print("Prior Probabilities:")
     for class_val in nb.classes:
@@ -115,7 +101,7 @@ def run_simple_analysis():
     print(f"\nLaporan Klasifikasi:")
     print(classification_report(y_test, y_pred, target_names=target_names))
     
-    # Visualisasi sederhana
+    # Visualisasi 
     plt.figure(figsize=(12, 4))
     
     # Plot 1: Distribusi fitur per kelas
@@ -155,10 +141,8 @@ def run_simple_analysis():
     plt.tight_layout()
     plt.show()
     
-    # Contoh prediksi manual
     print(f"\nCONTOH PREDIKSI:")
-    print("=" * 30)
-    
+
     def predict_manual(price, valuation, country_name):
         sample = pd.DataFrame({'Dollar_Price': [price], 'Valuation_Percent': [valuation]})
         prediction = nb.predict(sample)[0]
@@ -167,7 +151,7 @@ def run_simple_analysis():
         print(f"   Harga: ${price}, Valuasi: {valuation}%")
         print(f"   Prediksi: {cluster_names[prediction]}")
         
-        # Hitung probabilitas untuk setiap kelas
+        # Probabilitas untuk setiap kelas
         print("   Probabilitas:")
         for class_val in nb.classes:
             score = nb.class_priors[class_val]
@@ -185,4 +169,5 @@ def run_simple_analysis():
     return nb
 
 if __name__ == "__main__":
+
     model = run_simple_analysis()
