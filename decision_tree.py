@@ -8,17 +8,14 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def create_economic_labels(df):
-    """Buat label ekonomi berdasarkan cluster results"""
     df_copy = df.copy()
-    
-    # Mapping cluster ke kategori ekonomi berdasarkan analisis K-Means
+
     economic_labels = []
     
     for _, row in df_copy.iterrows():
         price = row['Dollar_Price']
         valuation = row['Valuation_Percent']
-        
-        # Klasifikasi berdasarkan harga dan valuasi
+
         if price >= 4.5 and valuation >= -25:
             economic_labels.append('Maju')
         elif price >= 3.0 and valuation >= -45:
@@ -30,19 +27,15 @@ def create_economic_labels(df):
     return df_copy
 
 def decision_tree_analysis():
-    """Decision Tree analysis untuk Big Mac Index classification"""
     print("BIG MAC INDEX DECISION TREE CLASSIFICATION")
     print("=" * 55)
     
     try:
-        # Load data dari CSV hasil K-Means
         df = pd.read_csv('real_bigmac_clustering_results.csv')
         print(f"Data loaded: {len(df)} countries")
-        
-        # Create economic labels
+
         df = create_economic_labels(df)
-        
-        # Show distribution
+
         print(f"\nEconomic Level Distribution:")
         level_counts = df['Economic_Level'].value_counts()
         for level, count in level_counts.items():
@@ -115,3 +108,4 @@ if __name__ == "__main__":
     else:
 
         print("\nAnalysis failed.")
+
